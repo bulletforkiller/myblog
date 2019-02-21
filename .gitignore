@@ -102,3 +102,16 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# my blog
+media/
+000*.py
+wsgi.py
+settings.py
+
+
+# vscode
+.vscode/
+
+# backup file
+*~
