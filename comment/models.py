@@ -10,7 +10,7 @@ class Comment(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    comment = models.CharField(max_length=140)
+    comment = models.CharField(max_length=1000)
     comment_time = models.DateTimeField(default=timezone.now)
     user = models.ForeignKey(
         User, related_name='comment', on_delete=models.CASCADE)
