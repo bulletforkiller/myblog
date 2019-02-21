@@ -108,7 +108,7 @@ media/
 000*.py
 wsgi.py
 settings.py
-
+data.json
 
 # vscode
 .vscode/
