@@ -1,0 +1,115 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock title %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="{% static 'myblog/css/blog_base.css' %}">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.2.1/css/bootstrap.min.css">
+    {% block header_extends %}{% endblock header_extends %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+        <a href="{% url 'index' %}" class="navbar-brand">个人博客网站</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsClass" aria-controls="#navbarsClass" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarsClass">
+            <ul class="nav navbar-nav mr-auto">
+                <li class="nav-item {% block nav_home_active %}{% endblock nav_home_active %}">
+                    <a href="{% url 'index' %}" class="nav-link">首页</a>
+                </li>
+                <li class="nav-item {% block nav_blog_active %}{% endblock nav_blog_active %}">
+                    <a href="{% url 'myblog:blog_list' %}" class="nav-link">博客</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav ml-auto">
+                {% if not user.is_authenticated %}
+                    <li class="nav-item">
+                        <a href="{% url 'register' %}?from={{request.get_full_path}}" class="nav-link">注册</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'login' %}?from={{request.get_full_path}}" class="nav-link">登陆</a>
+                    </li>
+                {% else %}
+                    <div class="dropdown">
+                        <a href="" class="dropdown-toggle nav-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{user.username}}</a>
+                        <div class="dropdown-menu">
+                            <a href="{% url 'user_detail' %}" class="dropdown-item">用户资料</a>
+                            <a href="{% url 'logout' %}?from={{request.get_full_path}}" class="dropdown-item">注销</a>
+                        </div>
+                    </div>
+                {% endif %}
+                
+            </ul>
+        </div>
+    </nav> 
+
+    <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="login_modal">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">用户登陆</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="" method="POST" class="form-group" id="login-form">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        {% for form_item in login_modal_form %}
+                            <div class="form-group">
+                                <label for="{{form_item.id_for_label}}">{{form_item.label_tag}}</label>
+                                {{form_item}}
+                                <small class="form-text text-warning">{{form_item.errors.as_text}}</small>
+                            </div>
+                        {% endfor %}
+                        <div class="form-group">
+                            <small class="form-text text-warning float-left" id="modal-errors"></small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                        <button type="submit" class="btn btn-primary">登陆</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% block content %}{% endblock content %}
+    <!-- jQuery & bootstrap4 & Popper -->
+    <script src="https://cdn.staticfile.org/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+    {% block extra_scripts %}{% endblock extra_scripts %}
+
+    <script>
+        $(function(){
+            // 登陆信息的提交处理
+            $('#login-form').submit(function (event) {
+                event.preventDefault();
+                $.ajax({
+                    url: "{% url 'login' %}",
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    cache: false,
+                    async: true,
+                    success: function (data) {
+                        if (data['status'] == 'SUCCESS') {
+                            window.location.reload();
+                        } else {
+                            $('#modal-errors').text('用户名或密码错误');
+                        }
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

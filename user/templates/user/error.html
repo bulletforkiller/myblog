@@ -1,0 +1,9 @@
+{% extends 'blog_base.html' %}
+
+{% block title %} {{message}} {% endblock title %}
+
+{% block content %}
+    <div class="alert alert-danger" role="alert">
+        很抱歉，{{message}}
+    </div>
+{% endblock content %}

@@ -1,0 +1,46 @@
+{% extends 'blog_base.html' %}
+
+{% load static %}
+{% load comment_extras %}
+{% load reading_statics_extras %}
+{% load like_extras %}
+
+{% block title %} {{blog.title}} {% endblock title %}
+{% block nav_blog_active %}active{% endblock nav_blog_active %}
+
+{% block header_extends %}
+<link rel="stylesheet" href="{% static "myblog/css/blog.css" %}">
+<link rel="stylesheet" href="https://at.alicdn.com/t/font_1043352_kbrqyvllufh.css">
+<script src="{% static "ckeditor/ckeditor-init.js" %}"></script>
+<script src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
+{% endblock header_extends %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            {% if user.is_authenticated %}
+                <h3>{{user.username}}</h3>
+                <ul style="list-style-type: none;">
+                    <li>昵称: <a href="#">修改昵称</a></li>
+                    <li>邮箱: 
+                        {% if user.email %}
+                            {{user.email}}
+                        {% else %}
+                            未绑定
+                            <a href="#">绑定邮箱</a>
+                        {% endif %} 
+                    </li>
+                    <li>上次登陆时间: {{user.last_login|date:"Y-m-d H:i:s"}} </li>
+                    <li><a href="#">修改密码</a></li>
+                </ul>
+            {% else %}
+                <span>未登陆，跳转到首页...</span>
+                <script>
+                    var t = setTimeout("window.location.href='/'", 1000);
+                </script>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

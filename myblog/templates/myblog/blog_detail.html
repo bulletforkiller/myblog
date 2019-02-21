@@ -1,0 +1,168 @@
+{% extends 'blog_base.html' %}
+
+{% load static %}
+{% load comment_extras %}
+{% load reading_statics_extras %}
+{% load like_extras %}
+
+{% block title %} {{blog.title}} {% endblock title %}
+{% block nav_blog_active %}active{% endblock nav_blog_active %}
+
+{% block header_extends %}
+<link rel="stylesheet" href="{% static "myblog/css/blog.css" %}">
+<link rel="stylesheet" href="https://at.alicdn.com/t/font_1043352_kbrqyvllufh.css">
+<script src="{% static "ckeditor/ckeditor-init.js" %}"></script>
+<script src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
+{% endblock header_extends %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h3>{{blog.title}}</h3>
+            <ul class="blog-info-description">
+                <li>作者: {{blog.author}}</li>
+                <li>分类: <a href="{% url 'myblog:blog_with_type' blog.blog_type.id %}">{{blog.blog_type}}</a></li>
+                <li>发表时间: {{blog.create_time|date:"Y-m-d H:i:s"}}</li>
+                <li>阅读:({% get_read_num blog %})</li>
+                <li>评论: {% get_comments_count blog %}</li>
+            </ul>
+            <div class="blog-content">{{blog.content|safe}}</div>
+            {% url 'likechange' as url %}
+            <div class="like-area" onclick="javascript:like_it(this, '{% get_content_type blog %}', {{blog.pk}}, '{{url}}')">
+                <i class="iconfont icon-xihuan1 {% get_likes_states blog %}"></i>
+                <span id="likes_num">{% get_likes_count blog %}</span>
+                <span>喜欢</span>
+            </div>
+            <div class="blog-more">
+                <p>
+                    上一篇:
+                    {% if previous_blog %}
+                        <a href="{% url 'myblog:blog_detail' previous_blog.pk %}">{{previous_blog.title}}</a>
+                    {% else %}
+                        没有了
+                    {% endif %}
+                </p>
+                下一篇:
+                {% if next_blog %}
+                    <a href="{% url 'myblog:blog_detail' next_blog.pk %}">{{next_blog.title}}</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <!-- justify-content-md-center -->
+        <div class="col">
+            <!-- -md-auto -->
+            <div class="comment-area">
+                <h3 class="comment-area-title">提交评论</h3>
+                <!-- 提交评论区域 -->
+                {% if user.is_authenticated %}
+                    <!-- 提交评论部分 -->
+                    <form action="{% url 'comment' %}" method="post" id="comment-form">
+                        {% csrf_token %}
+                        <label>欢迎{{user}},写点什么吧</label>
+                        <!-- 多重回复的实现部分 -->
+                        <div id="reply_container" style="display: none;">
+                            <p id="reply_title">回复: </p>
+                            <div id="reply_content"></div>
+                        </div>
+                        {% get_comments_form blog as comments_form %}
+                        {% for field in comments_form %}
+                            <div class="form-group">
+                                {{field}}
+                            </div>
+                        {% endfor %}
+                        <div class="form-group">
+                            <span id="comment_errors" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">提交评论</button>
+                        </div>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}?from={{request.get_full_path}}" class="btn btn-primary">登陆</a>
+                    <span> or </span>
+                    <a href="{% url 'register' %}?from={{request.get_full_path}}" class="btn btn-secondary">注册</a>
+                {% endif %}
+                <!-- 区域完 -->
+            </div>
+            <div class="comment-area">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">评论列表</h5>
+                    </div>
+                    <ul class="list-group list-group-flush" id="comment-box">
+                        <!-- 顶层评论列表 -->
+                        {% get_comments_list blog as comments_list %}
+                        {% for comment in comments_list %}
+                            <li class="list-group-item">
+                                <small>
+                                    <span>{{comment.user}}</span>
+                                    <span>{{comment.comment_time|date:"Y-m-d G:i:s"}}</span>
+                                </small>
+                                <br>
+                                <div id="comment_{{comment.pk}}">
+                                    {{comment.comment|safe}}
+                                </div>
+                                <!-- 点赞 -->
+                                <div class="like-area" onclick="javascript:like_it(this, '{% get_content_type comment %}', {{comment.pk}}, '{{url}}')">
+                                    <i class="iconfont icon-xihuan1 {% get_likes_states comment %}"></i>
+                                    <span id="likes_num">{% get_likes_count comment %}</span>
+                                </div>
+                                <!-- 跟踪被回复的对象 -->
+                                <a href="javascript:reply({{comment.pk}})">回复</a>
+                        <!-- 完 -->
+                                <!-- 回复楼层 -->
+                                <div id="root_{{comment.pk}}">
+                                    {% for reply in comment.root_comment.all %}
+                                        <div class="reply">
+                                            <small>
+                                                <span>{{reply.user}}</span>
+                                                <span>{{reply.comment_time|date:"Y-m-d G:i:s"}}</span> 
+                                                <span>回复</span>
+                                                <span>{{reply.reply_to.username}}</span>
+                                            </small>
+                                            <div id="comment_{{reply.pk}}">
+                                                {{reply.comment|safe}}
+                                            </div>
+                                            <!-- 点赞 -->
+                                            <div class="like-area" onclick="javascript:like_it(this, '{% get_content_type reply %}', {{reply.pk}}, '{{url}}')">
+                                                <i class="iconfont icon-xihuan1 {% get_likes_states reply %}"></i>
+                                                <span id="likes_num">{% get_likes_count reply %}</span>
+                                            </div>
+                                            <!-- 跟踪被回复的对象 -->
+                                            <a href="javascript:reply({{reply.pk}})">回复</a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </li>
+                        {% empty %}
+                            <div id="no-commend">
+                                <li class="list-group-item">暂无评论</li>
+                            </div>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock content %}
+
+{% block extra_scripts %}
+    <script>
+        window.onunload = function(){
+            console.log('flash it!');
+            {% if user.is_authenticated %}
+                $('#reply_to_id').val('0');
+                CKEDITOR.instances['id_comment_text'].setData('');
+                // 有何作用？？
+                CKEDITOR.instances['id_comment_text'].updateElement();
+            {% endif %}
+        }
+    </script>
+
+    <script src="{% static 'myblog/js/blog_detail.js' %}"></script>
+{% endblock extra_scripts %}

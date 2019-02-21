@@ -1,0 +1,98 @@
+{% extends 'blog_base.html' %}
+{% load static %}
+
+{% block title %}
+    我的网站|首页
+{% endblock title %}
+
+{% block header_extends %}
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock header_extends %}
+
+{% block nav_home_active %}active{% endblock nav_home_active %}
+
+{% block content %}
+    <h3 class="home-content">欢迎访问我的网站</h3>
+    <div id="container">
+        <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', function () {
+            var myChart = Highcharts.chart('container', {
+                    chart: {
+                        type: 'line'
+                    },
+                    title: {
+                        text: 'Last week reading trend'
+                    },
+                    xAxis: {
+                        categories: {{times_list|safe}}
+                    },
+                    yAxis: {
+                        title: {
+                            text: null
+                        },
+                        labels: {enabled: false},
+                        gridLineDashStyle: 'Dash'
+                    },
+                    series: [{
+                        name: 'Test',
+                        data: {{views_list}}
+                    }],
+                    plotOptions:{
+                        series:{
+                            dataLabels:{
+                                enabled: true,
+                            }
+                        }
+                    },
+                    legend: {enabled: false},
+                    credits: {enabled: false}
+                });
+            });
+        </script>
+    </div>
+
+    <div class="popular-list">
+    <ul>
+    <h3>今日热门博客</h3>
+    {% for popular in today_populars %}
+        <li><a href="{% url 'myblog:blog_detail' popular.content_object.pk %}">{{popular.content_object.title}}</a>{{popular.read_nums}}</li>
+    {% empty %}
+        暂无热门博客
+    {% endfor %}
+    </ul>
+
+    <div class="popular-list">
+    <ul>
+    <h3>昨日热门博客</h3>
+    {% for popular in yesterday_populars %}
+        <li><a href="{% url 'myblog:blog_detail' popular.content_object.pk %}">{{popular.content_object.title}}</a>{{popular.read_nums}}</li>
+    {% empty %}
+        暂无热门博客
+    {% endfor %}
+    </ul>
+    </div>
+
+    <div class="popular-list">
+    <ul>
+    <h3>一周热门博客</h3>
+    {% for popular in week_populars %}
+        <li><a href="{% url 'myblog:blog_detail' popular.id %}">{{popular.title}}</a>{{popular.read_nums_sum}}</li>
+    {% empty %}
+        暂无热门博客
+    {% endfor %}
+    </ul>
+    </div>
+
+    <div class="popular-list">
+    <ul>
+    <h3>该月热门博客</h3>
+    {% for popular in month_populars %}
+        <li><a href="{% url 'myblog:blog_detail' popular.id %}">{{popular.title}}</a>{{popular.read_nums_sum}}</li>
+    {% empty %}
+        暂无博客
+    {% endfor %}
+    </ul>
+    </div>
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+{% endblock content %}

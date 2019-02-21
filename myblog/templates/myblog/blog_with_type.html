@@ -1,0 +1,8 @@
+{% extends 'myblog/blog_list.html' %}
+{% block title %}{{blog_this_type.type_name}}{% endblock title %}
+
+{% block blog_card_header %} 
+    分类:{{blog_this_type.type_name}}
+    (一共有{{page_of_blogs.paginator.count}}篇博客)
+    <a href="{% url 'myblog:blog_list' %}">查看全部博客</a>
+{% endblock blog_card_header %} 

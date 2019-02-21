@@ -1,0 +1,32 @@
+{% extends 'blog_base.html' %}
+
+{% block title %}用户注册{% endblock title %}
+{% block nav_home_active %}active{% endblock nav_home_active %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col col-lg-4 offset-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">用户注册</h5>
+                        <form action="" method="POST" class="form-group">
+                            {% csrf_token %}
+                            {% for form_item in form %}
+                                <div class="form-group">
+                                    <label for="{{form_item.id_for_label}}">{{form_item.label_tag}}</label>
+                                    {{form_item}}
+                                    <small class="form-text">{{form_item.errors.as_text}}</small>
+                                </div>
+                            {% endfor %}
+                            <small class="form-text">{{form.non_field_errors.as_text}}</small>
+                            <input type="submit" value="注册" class="btn btn-primary float-right">
+                        </form>
+                    </div>
+                </div>
+            </div> 
+        </div> 
+    </div>
+{% endblock content %}
+
+

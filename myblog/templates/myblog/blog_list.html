@@ -1,0 +1,102 @@
+{% extends 'blog_base.html' %}
+
+{% load static %}
+{% load comment_extras %}
+
+{% block title %}
+    My Website
+{% endblock title %}
+
+{% block header_extends %}
+    <link rel="stylesheet" href="{% static 'myblog/css/blog.css' %}">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1043352_kbrqyvllufh.css">
+{% endblock header_extends %}
+
+{% block nav_blog_active %}active{% endblock nav_blog_active %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-8 col-lg-9">
+                <div class="blog_list_card">
+                    <div class="card">
+                    <div class="card-body">
+                    <div class="card-title">{% block blog_card_header %} 博客列表 {% endblock blog_card_header %}</div>
+                        <ul class="list-group list-group-flush">
+                            {% for blog in page_of_blogs.object_list %}
+                                <li class="list-group-item">
+                                    <a href="{% url 'myblog:blog_detail' blog.pk %}"><h3>{{blog.title}}</h3></a>
+                                    <div class="blog-info">
+                                        <i class="iconfont icon-pricetags">{{blog.blog_type}}</i>
+                                        <i class="iconfont icon-clock">{{blog.create_time|date:"Y-m-d"}}</i>
+                                        <i class="iconfont icon-pinglun">{% get_comments_count blog %}</i>
+                                    </div>
+                                    <p>{{blog.content|striptags|truncatechars:60}}</p>
+                                </li>
+                            {% empty %}
+                                <p>暂无博客，敬请期待</p>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                </div>
+                <nav aria-label="Page navigation" class="paginator">
+                <ul class="pagination">
+                    {% if page_of_blogs.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{page_of_blogs.previous_page_number}}">Previous</a></li>
+                    {% else %}
+                        <li class="page-item disabled"><a href="#" class="page-link">Previous</a></li>
+                    {% endif %}
+                    {% for page_num in page_range %}
+                        {% if page_num == page_of_blogs.number %}
+                            <li class="page-item active"><a class="page-link" href="#">{{page_num}}</a></li>
+                        {% elif page_num == '...' %}
+                            <li class="page-item disabled"><a href="" class="page-link">...</a></li>
+                        {% else %}
+                            <li class="page-item"><a class="page-link" href="?page={{page_num}}">{{page_num}}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_of_blogs.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{page_of_blogs.next_page_number}}">Next</a></li>
+                    {% else %}
+                        <li class="page-item disabled"><a href="#" class="page-link">Next</a></li>
+                    {% endif %}
+                </ul>
+                <p>
+                    共有{{page_of_blogs.paginator.count}}篇博客,
+                    当前第{{page_of_blogs.number}}页,
+                    共{{page_of_blogs.paginator.num_pages}}页
+                </p>
+                </nav>
+            </div>
+            <div class="d-none d-sm-block d-sm-none d-md-block col-md-4 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">博客分类</h5>
+                        <h6 class="card-subtitle mb-2 text-muted" style="font-size: 80%">一共有{{blog_types|length}}种类型</h6>
+                        <ul class="blog-card-list">
+                            {% for blog_type in blog_types %}
+                                <li><a href="{% url 'myblog:blog_with_type' blog_type.pk %}"> {{ blog_type.type_name }} </a></li>
+                            {% empty %}
+                                <p>-- 暂无分类 --</p>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">日期分类</h5>
+                        <ul class="blog-card-list">
+                            {% for create_time in blog_dates %}
+                                <li>
+                                    <a href="{% url 'myblog:blogs_by_date' create_time.year create_time.month %}">{{create_time|date:"Y年m月"}}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
