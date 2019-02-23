@@ -35,11 +35,23 @@ $(function () {
     // 评论的提交处理
     $('#comment-form').submit(function () {
         $("#comment_errors").text('');
-        if (CKEDITOR.instances['id_comment_text'].document.getBody().getText().trim() == '') {
-            $('#comment_errors').text('评论内容不能为空');
-            console.log('Errors: no comment');
+        var text = CKEDITOR.instances['id_comment_text'].document.getBody().getText();
+        // 判断评论内容是否为空
+        if (text.trim() == '') {
+            $('#comment_errors').text('大神，拜托写点什么吧 -__- ');
+            console.log('Error: no comment');
             return false;
         }
+
+        // 判断评论的长度是否超过限制
+        if (text.length > 140) {
+            $('#comment_errors').text('抱歉，你的神评撑爆了我们的框框 >__< ');
+            console.log("Error: comment too long");
+            return false;
+        }
+
+        var text_length = text.length;
+        console.log(text_length);
 
         CKEDITOR.instances['id_comment_text'].updateElement();
 
