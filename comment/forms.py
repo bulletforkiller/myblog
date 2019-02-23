@@ -1,3 +1,4 @@
+from django.conf import settings
 from django import forms
 from django.db.models import ObjectDoesNotExist
 from django.contrib.contenttypes.models import ContentType
@@ -24,11 +25,17 @@ class CommentForm(forms.Form):
             self.user = kwargs.pop('user')
         super().__init__(*args, **kwargs)
 
-    def clean(self):
+    def clean(self):  # 表单合理性检验
+        # 检验用户是否登陆
         if self.user.is_authenticated:
             self.cleaned_data['user'] = self.user
         else:
             raise forms.ValidationError('用户尚未登陆')
+        # 检验评论的长度是否合理
+        if len(self.
+               cleaned_data['comment_text']) > settings.MAX_COMMENT_LENGTH:
+            raise forms.ValidationError('评论内容过长')
+        # 检验评论的对象是否存在
         content_type = self.cleaned_data['content_type']
         object_id = self.cleaned_data['object_id']
         try:
