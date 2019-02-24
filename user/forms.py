@@ -44,7 +44,6 @@ class LoginForm(forms.Form):
 
 
 class RegisterForm(forms.Form):
-    # required_css_class = 'form-control'
     username = forms.CharField(
         label='用户名',
         min_length=5,
@@ -160,3 +159,79 @@ class BindMailForm(forms.Form):
             'class': 'form-control',
             'placeholder': '请输入验证码'
         }))
+
+    def __init__(self, *args, **kwargs):
+        if 'request' in kwargs:
+            self.request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
+
+    def clean_verify_code(self):
+        email = self.cleaned_data['email']
+        verify_code = self.cleaned_data['verify_code'].strip()
+        raw_code = self.request.session.get(email, '')
+        if not verify_code:
+            raise forms.ValidationError('验证码不能为空')
+        elif raw_code != verify_code:
+            raise forms.ValidationError('错误的验证码')
+        else:
+            del self.request.session[email]
+            return verify_code
+
+
+class ChangePasswordForm(forms.Form):
+    old_password = forms.CharField(
+        label='旧密码',
+        required=True,
+        min_length=8,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': '请输入旧密码',
+        }),
+        error_messages={
+            'required': '密码不能为空',
+            'min_length': '密码至少为8位'
+        })
+
+    new_password = forms.CharField(
+        label='新密码',
+        required=True,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': '请输入新密码',
+        }),
+        error_messages={
+            'required': '密码不能为空',
+            'min_length': '密码至少为8位'
+        })
+
+    new_password_again = forms.CharField(
+        label='新密码确认',
+        required=True,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': '请再次输入新密码',
+        }),
+        error_messages={
+            'required': '密码不能为空',
+            'min_length': '密码至少为8位'
+        })
+
+    def __init__(self, *args, **kwargs):
+        if 'user' in kwargs:
+            self.user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+
+    def clean_old_password(self):
+        password = self.cleaned_data['old_password']
+        if self.user.check_password(password):
+            return password
+        else:
+            raise forms.ValidationError('旧密码错误')
+
+    def clean(self):
+        new_password = self.cleaned_data['new_password']
+        new_password_again = self.cleaned_data['new_passord_again']
+        if new_password != new_password_again or not new_password:
+            raise forms.ValidationError('新密码不匹配')
+        else:
+            return new_password

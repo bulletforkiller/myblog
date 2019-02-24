@@ -13,34 +13,37 @@ from .forms import LoginForm, RegisterForm, ChangeNickForm, BindMailForm
 from .models import Profile
 
 
+def modal_auth(request):
+    data = {}
+    if request.is_ajax() and request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            user = form.cleaned_data['user']
+            login(request, user)
+            data['status'] = 'SUCCESS'
+            return JsonResponse(data)
+    data['status'] = 'ERROR'
+    return JsonResponse(data)
+
+
 def auth(request):
     back_on = request.GET.get('from', '')
-    is_ajax = request.is_ajax()
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
             user = form.cleaned_data['user']
             login(request, user)
-            # 处理 ajax
-            if is_ajax:
-                data = {'status': 'SUCCESS'}
-                return JsonResponse(data)
-            else:
-                return redirect(back_on, reverse('index'))
-        else:
-            if is_ajax:
-                data = {'status': 'ERROR'}
-                return JsonResponse(data)
+            return redirect(back_on, reverse('index'))
     else:
         form = LoginForm()
-        context = {
-            'html_title': '用户登陆',
-            'form_title': '用户登陆',
-            'form': form,
-            'from_link': back_on,
-            'submit_text': '登陆',
-        }
-        return render(request, 'common_form.html', context)
+    context = {
+        'html_title': '用户登陆',
+        'form_title': '用户登陆',
+        'form': form,
+        'from_link': back_on,
+        'submit_text': '登陆',
+    }
+    return render(request, 'common_form.html', context)
 
 
 def register(request):
@@ -59,13 +62,13 @@ def register(request):
             return redirect(back_on, reverse('index'))
     else:
         form = RegisterForm()
-        context = {
-            'html_title': '用户注册',
-            'form_title': '用户注册',
-            'form': form,
-            'from_link': back_on,
-            'submit_text': '注册',
-        }
+    context = {
+        'html_title': '用户注册',
+        'form_title': '用户注册',
+        'form': form,
+        'from_link': back_on,
+        'submit_text': '注册',
+    }
     return render(request, 'common_form.html', context)
 
 
@@ -74,8 +77,7 @@ def logout_user(request):
     return redirect(request.GET.get('from', ''), reverse('index'))
 
 
-# 此方法尚未进行测试
-@login_required(redirect_field_name='from', login_url='/user/login/')
+# 该模板页面已经进行过用户登陆的测试
 def user_detail(request):
     return render(request, 'user/user_detail.html', {})
 
@@ -94,21 +96,21 @@ def change_nickname(request):
             return redirect(back_on, reverse('index'))
     else:
         form = ChangeNickForm()
-        context = {
-            'html_title': '更改昵称',
-            'form_title': '更改昵称',
-            'form': form,
-            'from_link': back_on,
-            'submit_text': '提交更改',
-        }
-        return render(request, 'common_form.html', context)
+    context = {
+        'html_title': '更改昵称',
+        'form_title': '更改昵称',
+        'form': form,
+        'from_link': back_on,
+        'submit_text': '提交更改',
+    }
+    return render(request, 'common_form.html', context)
 
 
 @login_required(redirect_field_name='from', login_url='/user/login/')
 def bind_email(request):
     back_on = request.GET.get('from', '')
     if request.method == 'POST':
-        form = BindMailForm(request.POST)
+        form = BindMailForm(request.POST, request=request)
         if form.is_valid():
             email = form.cleaned_data['email']
             request.user.email = email
@@ -116,14 +118,14 @@ def bind_email(request):
             return redirect(back_on, reverse('index'))
     else:
         form = BindMailForm()
-        context = {
-            'html_title': '绑定邮箱',
-            'form_title': '绑定邮箱',
-            'form': form,
-            'from_link': back_on,
-            'submit_text': '绑定',
-        }
-        return render(request, 'user/bind_mail.html', context)
+    context = {
+        'html_title': '绑定邮箱',
+        'form_title': '绑定邮箱',
+        'form': form,
+        'from_link': back_on,
+        'submit_text': '绑定',
+    }
+    return render(request, 'user/bind_mail.html', context)
 
 
 # 该方法只处理 ajax 请求，并没有其它的可能

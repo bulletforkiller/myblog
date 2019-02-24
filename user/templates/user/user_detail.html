@@ -8,13 +8,6 @@
 {% block title %} {{blog.title}} {% endblock title %}
 {% block nav_blog_active %}active{% endblock nav_blog_active %}
 
-{% block header_extends %}
-<link rel="stylesheet" href="{% static "myblog/css/blog.css" %}">
-<link rel="stylesheet" href="https://at.alicdn.com/t/font_1043352_kbrqyvllufh.css">
-<script src="{% static "ckeditor/ckeditor-init.js" %}"></script>
-<script src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
-{% endblock header_extends %}
-
 {% block content %}
 <div class="container">
     <div class="row">
