@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from .forms import LoginForm, RegisterForm, ChangeNickForm, BindMailForm
+from .forms import LoginForm, RegisterForm, ChangeNickForm, BindMailForm, ChangePasswordForm
 from .models import Profile
 
 
@@ -128,7 +128,7 @@ def bind_email(request):
     return render(request, 'user/bind_mail.html', context)
 
 
-# 该方法只处理 ajax 请求，并没有其它的可能
+# 该方法只处理 ajax 请求
 @login_required(redirect_field_name='from', login_url='/user/login/')
 def send_code(request):
     if request.is_ajax():
@@ -152,7 +152,7 @@ def send_code(request):
                 try:
                     send_mail(
                         '[lyangly]',
-                        '尊敬的用户你好，你已在本站注册。您的验证码是' + verify_code,
+                        '尊敬的用户你好，你已在本站绑定邮箱。您的验证码是' + verify_code,
                         'killer@lyangly.onmicrosoft.com', [email],
                         fail_silently=False)
                 except SMTPException:
@@ -167,3 +167,27 @@ def send_code(request):
             return render(request, 'error.html', {'message': '非法的提交'})
     else:
         return render(request, 'error.html', {'message': '非法的提交'})
+
+
+@login_required(redirect_field_name='from', login_url='/user/login/')
+def change_password(request):
+    back_on = request.GET.get('from', '')
+    if request.method == 'POST':
+        form = ChangePasswordForm(request.POST, user=request.user)
+        if form.is_valid():
+            new_password = form.cleaned_data['new_password']
+            request.user.set_password(new_password)
+            request.user.save()
+            # 更改密码需要注销用户并使用户重新登陆
+            logout(request)
+            return redirect(reverse('index'))
+    else:
+        form = ChangePasswordForm()
+    context = {
+        'html_title': '更改密码',
+        'form_title': '更改密码',
+        'form': form,
+        'from_link': back_on,
+        'submit_text': '更改',
+    }
+    return render(request, 'common_form.html', context)
