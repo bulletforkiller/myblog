@@ -1,0 +1,51 @@
+{% extends 'common_form.html' %}
+
+{% block extra_btn %}
+    <button id="send_mail" class="btn btn-success mr-auto" type="button">发送验证码</button>
+{% endblock extra_btn %}
+
+{% block extra_scripts %}
+    <script>
+        $('#send_mail').click(function() {
+            var email_addr = $('#id_email').val();
+            if(email_addr == ''){
+                $('#tips').text('*邮箱不能为空');
+            }
+
+            $.ajax({
+                url: "{% url 'send_code' %}",
+                type: 'POST',
+                data: {
+                    'email': email_addr,
+                    'csrfmiddlewaretoken': '{{csrf_token}}',
+                },
+                cache: false,
+                async: true,
+                success: (data) => {
+                    console.log(data);
+                    if(data['status'] == 'SUCCESS'){
+                        $(this).addClass('disabled');
+                        $(this).attr('disabled', true);
+                        var timeout = 60;
+                        var tick = setInterval(() => {
+                            if(timeout <= 0){
+                                clearInterval(tick);
+                                $(this).removeClass('disabled');
+                                $(this).attr('disabled', false);
+                                $(this).text('发送验证码');
+                                return;
+                            }
+                            $(this).text(timeout--);
+                            console.log(timeout + ' ');
+                        }, 1000);
+                    }else{
+                        $('#tips').text('*' + data['message']);
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                },
+            });
+        });
+    </script>
+{% endblock extra_scripts %}

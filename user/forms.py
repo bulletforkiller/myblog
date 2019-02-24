@@ -123,3 +123,40 @@ class RegisterForm(forms.Form):
             raise forms.ValidationError('两次密码不同')
         else:
             return password_again
+
+
+class ChangeNickForm(forms.Form):
+    # 后端是否需要验证待定
+    new_nickname = forms.CharField(
+        label='新昵称',
+        required=True,
+        max_length=20,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '请输入新的昵称',
+        }),
+        error_messages={
+            'required': '新昵称不能为空',
+            'max_length': '昵称最长限20个字符',
+        })
+
+
+class BindMailForm(forms.Form):
+    email = forms.EmailField(
+        label='邮箱',
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': '请输入有效的邮箱'
+        }),
+        error_messages={
+            'invalid': '非法的邮箱格式',
+            'required': '邮箱不能为空',
+        })
+    verify_code = forms.CharField(
+        label='验证码',
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '请输入验证码'
+        }))

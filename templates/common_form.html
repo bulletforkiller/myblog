@@ -1,0 +1,39 @@
+{% extends 'blog_base.html' %}
+
+{% block title %}{{html_title}}{% endblock title %}     <!-- 第一个公共变量 -->
+{% block nav_home_active %}active{% endblock nav_home_active %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col col-lg-4 offset-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{form_title}}</h5>      <!-- 第二个公共变量 -->
+                        <form action="#" method="POST" class="form-group">
+                            {% csrf_token %}
+                            {% for form_item in form %}
+                                <div class="form-group">
+                                    {% if not field.is_hidden %}
+                                        <label for="{{form_item.id_for_label}}">{{form_item.label_tag}}</label>
+                                    {% endif %}
+                                    {{form_item}}
+                                        <small class="form-text text-warning">{{form_item.errors.as_text}}</small>
+                                </div>
+                            {% endfor %}
+                            <div class="form-group">
+                                <small class="form-text text-warning mr-auto" id="tips">{{form.non_field_errors}}</small>
+                            </div>
+                            <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                                {% block extra_btn %} {% endblock extra_btn %} <!-- 用来扩展该模板, 添加更多的按钮 -->
+                                <button class="btn btn-secondary ml-auto" type="button" onclick="window.location.href='{{from_link}}'">返回</button>
+                                <input type="submit" value="{{submit_text}}" class="btn btn-primary ml-auto"> <!-- 第三个公共变量, 提交按钮上的文字 -->
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div> 
+        </div> 
+    </div>
+{% endblock content %}
+
