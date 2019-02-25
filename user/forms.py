@@ -51,12 +51,10 @@ class LoginForm(forms.Form):
             if User.objects.filter(email=username_or_email).exists():
                 username = User.objects.get(email=username_or_email).username
                 user = authenticate(username=username, password=password)
-                if not user:
-                    raise forms.ValidationError('用户不存在或密码错误')
-            else:
-                raise forms.ValidationError('用户不存在或密码错误')
-        self.cleaned_data['user'] = user
-        return self.cleaned_data
+                if user:
+                    self.cleaned_data['user'] = user
+                    return self.cleaned_data
+        raise forms.ValidationError('用户不存在或密码错误')
 
 
 class RegisterForm(forms.Form):
