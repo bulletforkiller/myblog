@@ -49,7 +49,7 @@ def auth(request):
 def register(request):
     back_on = request.GET.get('from', '')
     if request.method == 'POST':
-        form = RegisterForm(request.POST)
+        form = RegisterForm(request.POST, request=request)
         if form.is_valid():
             username = form.cleaned_data['username']
             email = form.cleaned_data['email']
@@ -69,7 +69,7 @@ def register(request):
         'from_link': back_on,
         'submit_text': '注册',
     }
-    return render(request, 'common_form.html', context)
+    return render(request, 'user/send_code.html', context)
 
 
 def logout_user(request):
@@ -125,11 +125,10 @@ def bind_email(request):
         'from_link': back_on,
         'submit_text': '绑定',
     }
-    return render(request, 'user/bind_mail.html', context)
+    return render(request, 'user/send_code.html', context)
 
 
 # 该方法只处理 ajax 请求
-@login_required(redirect_field_name='from', login_url='/user/login/')
 def send_code(request):
     if request.is_ajax():
         data = {}

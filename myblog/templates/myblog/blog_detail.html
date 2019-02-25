@@ -61,7 +61,7 @@
                     <!-- 提交评论部分 -->
                     <form action="{% url 'comment' %}" method="post" id="comment-form">
                         {% csrf_token %}
-                        <label>欢迎{{user}},写点什么吧</label>
+                        <label>欢迎 {{user.get_nickname_or_username}} ,写点什么吧</label>
                         <!-- 多重回复的实现部分 -->
                         <div id="reply_container" style="display: none;">
                             <p id="reply_title">回复: </p>
@@ -98,7 +98,7 @@
                         {% for comment in comments_list %}
                             <li class="list-group-item">
                                 <small>
-                                    <span>{{comment.user}}</span>
+                                    <span>{{comment.user.get_nickname_or_username}}</span>
                                     <span>{{comment.comment_time|date:"Y-m-d G:i:s"}}</span>
                                 </small>
                                 <br>

@@ -3,18 +3,29 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
 
+def clean_verify_code(self):
+    email = self.cleaned_data['email']
+    verify_code = self.cleaned_data['verify_code'].strip()
+    raw_code = self.request.session.get(email, '')
+    if not verify_code:
+        raise forms.ValidationError('验证码不能为空')
+    elif raw_code != verify_code:
+        raise forms.ValidationError('错误的验证码')
+    else:
+        del self.request.session[email]
+        return verify_code
+
+
 class LoginForm(forms.Form):
-    username = forms.CharField(
-        label='用户名',
-        max_length=30,
+    username_or_email = forms.CharField(
+        label='用户名或邮箱',
         min_length=5,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': '请输入用户名',
+            'placeholder': '请输入用户名或邮箱',
         }),
         required=True,
         error_messages={
-            'max_length': '用户名过长',
             'min_length': '用户名过短',
             'required': '用户名不能为空',
             'invalid:': '错误的格式',
@@ -33,13 +44,18 @@ class LoginForm(forms.Form):
         })
 
     def clean(self):
-        username = self.cleaned_data['username']
+        username_or_email = self.cleaned_data['username_or_email']
         password = self.cleaned_data['password']
-        user = authenticate(username=username, password=password)
+        user = authenticate(username=username_or_email, password=password)
         if not user:
-            raise forms.ValidationError('用户名或密码不正确')
-        else:
-            self.cleaned_data['user'] = user
+            if User.objects.filter(email=username_or_email).exists():
+                username = User.objects.get(email=username_or_email).username
+                user = authenticate(username=username, password=password)
+                if not user:
+                    raise forms.ValidationError('用户不存在或密码错误')
+            else:
+                raise forms.ValidationError('用户不存在或密码错误')
+        self.cleaned_data['user'] = user
         return self.cleaned_data
 
 
@@ -70,6 +86,14 @@ class RegisterForm(forms.Form):
             'required': '邮箱不能为空',
             'invalid:': '错误的邮箱格式',
         })
+    verify_code = forms.CharField(
+        label='验证码',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '请输入邮箱验证码',
+        }),
+        required=False,
+    )
     password = forms.CharField(
         label='密码',
         min_length=8,
@@ -96,6 +120,11 @@ class RegisterForm(forms.Form):
             'required': '密码不能为空',
             'invalid:': '错误的密码格式',
         })
+
+    def __init__(self, *args, **kwargs):
+        if 'request' in kwargs:
+            self.request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
 
     def clean_username(self):
         username = self.cleaned_data['username']
@@ -165,18 +194,6 @@ class BindMailForm(forms.Form):
             self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
 
-    def clean_verify_code(self):
-        email = self.cleaned_data['email']
-        verify_code = self.cleaned_data['verify_code'].strip()
-        raw_code = self.request.session.get(email, '')
-        if not verify_code:
-            raise forms.ValidationError('验证码不能为空')
-        elif raw_code != verify_code:
-            raise forms.ValidationError('错误的验证码')
-        else:
-            del self.request.session[email]
-            return verify_code
-
 
 class ChangePasswordForm(forms.Form):
     old_password = forms.CharField(
@@ -232,3 +249,8 @@ class ChangePasswordForm(forms.Form):
         if new_password != new_password_again or not new_password:
             raise forms.ValidationError('新密码不匹配或为空')
         return self.cleaned_data
+
+
+# 使用动态绑定降低代码重复
+RegisterForm.clean_verify_code = clean_verify_code
+BindMailForm.clean_verify_code = clean_verify_code
