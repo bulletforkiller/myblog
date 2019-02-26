@@ -28,6 +28,8 @@ def modal_auth(request):
 
 def auth(request):
     back_on = request.GET.get('from', '')
+    if request.user.is_authenticated:
+        return redirect(reverse('index'))
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -48,6 +50,8 @@ def auth(request):
 
 def register(request):
     back_on = request.GET.get('from', '')
+    if request.user.is_authenticated:
+        return redirect(reverse('index'))
     if request.method == 'POST':
         form = RegisterForm(request.POST, request=request)
         if form.is_valid():
@@ -69,6 +73,7 @@ def register(request):
         'from_link': back_on,
         'send_reason': 'register',
         'submit_text': '注册',
+        'need_nav': True,
     }
     return render(request, 'user/send_code.html', context)
 
@@ -103,6 +108,7 @@ def change_nickname(request):
         'form': form,
         'from_link': back_on,
         'submit_text': '提交更改',
+        'need_nav': False,
     }
     return render(request, 'common_form.html', context)
 
@@ -126,6 +132,7 @@ def bind_email(request):
         'from_link': back_on,
         'send_reason': 'bind',
         'submit_text': '绑定',
+        'need_nav': False,
     }
     return render(request, 'user/send_code.html', context)
 
@@ -191,12 +198,15 @@ def change_password(request):
         'form': form,
         'from_link': back_on,
         'submit_text': '更改',
+        'need_nav': False,
     }
     return render(request, 'common_form.html', context)
 
 
 def reset_password(request):
     back_on = request.GET.get('from', '')
+    if request.user.is_authenticated:
+        return redirect(reverse('index'))
     if request.method == 'POST':
         form = ResetPasswordForm(request.POST, request=request)
         if form.is_valid():
@@ -215,5 +225,6 @@ def reset_password(request):
         'from_link': back_on,
         'send_reason': 'reset_pass',
         'submit_text': '更改',
+        'need_nav': False,
     }
     return render(request, 'user/send_code.html', context)
