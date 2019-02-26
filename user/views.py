@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from .forms import LoginForm, RegisterForm, ChangeNickForm, BindMailForm, ChangePasswordForm
+from .forms import LoginForm, RegisterForm, ChangeNickForm, BindMailForm, ChangePasswordForm, ResetPasswordForm
 from .models import Profile
 
 
@@ -43,7 +43,7 @@ def auth(request):
         'from_link': back_on,
         'submit_text': '登陆',
     }
-    return render(request, 'common_form.html', context)
+    return render(request, 'user/auth.html', context)
 
 
 def register(request):
@@ -67,6 +67,7 @@ def register(request):
         'form_title': '用户注册',
         'form': form,
         'from_link': back_on,
+        'send_reason': 'register',
         'submit_text': '注册',
     }
     return render(request, 'user/send_code.html', context)
@@ -123,6 +124,7 @@ def bind_email(request):
         'form_title': '绑定邮箱',
         'form': form,
         'from_link': back_on,
+        'send_reason': 'bind',
         'submit_text': '绑定',
     }
     return render(request, 'user/send_code.html', context)
@@ -139,9 +141,10 @@ def send_code(request):
             if int(time.time()) - last_sent < 60:
                 data['status'] = 'ERROR'
                 data['message'] = 'Send mail too frequency'
-            elif User.objects.filter(email=email).exists():
-                data['status'] = 'ERROR'
-                data['message'] = '邮箱已被绑定'
+            elif request.POST.get('forwhat', '') != 'reset_pass':
+                if User.objects.filter(email=email).exists():
+                    data['status'] = 'ERROR'
+                    data['message'] = '邮箱已被绑定'
             else:
                 # 生成验证码
                 verify_code = ''.join(sample(hexdigits, randint(6, 10)))
@@ -190,3 +193,27 @@ def change_password(request):
         'submit_text': '更改',
     }
     return render(request, 'common_form.html', context)
+
+
+def reset_password(request):
+    back_on = request.GET.get('from', '')
+    if request.method == 'POST':
+        form = ResetPasswordForm(request.POST, request=request)
+        if form.is_valid():
+            new_password = form.cleaned_data['new_password']
+            email = form.cleaned_data['email']
+            user = User.objects.get(email=email)
+            user.set_password(new_password)
+            user.save()
+            return redirect(reverse('index'))
+    else:
+        form = ResetPasswordForm()
+    context = {
+        'html_title': '更改密码',
+        'form_title': '更改密码',
+        'form': form,
+        'from_link': back_on,
+        'send_reason': 'reset_pass',
+        'submit_text': '更改',
+    }
+    return render(request, 'user/send_code.html', context)
