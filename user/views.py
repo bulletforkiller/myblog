@@ -4,11 +4,11 @@ from smtplib import SMTPException
 from random import sample, randint
 from django.urls import reverse
 from django.http import JsonResponse
-from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
+from mysite.utils import send_mail
 from .forms import LoginForm, RegisterForm, ChangeNickForm, BindMailForm, ChangePasswordForm, ResetPasswordForm
 from .models import Profile
 
@@ -145,13 +145,14 @@ def send_code(request):
             email = request.POST.get('email')
             # 后端限制发送邮件的频率
             last_sent = request.session.get('%s_time' % email, 0)
+            forwhat = request.POST.get('forwhat', '')
             if int(time.time()) - last_sent < 60:
                 data['status'] = 'ERROR'
                 data['message'] = 'Send mail too frequency'
-            elif request.POST.get('forwhat', '') != 'reset_pass':
-                if User.objects.filter(email=email).exists():
-                    data['status'] = 'ERROR'
-                    data['message'] = '邮箱已被绑定'
+            elif forwhat != 'reset_pass' and User.objects.filter(
+                    email=email).exists():
+                data['status'] = 'ERROR'
+                data['message'] = '邮箱已被绑定'
             else:
                 # 生成验证码
                 verify_code = ''.join(sample(hexdigits, randint(6, 10)))
@@ -159,11 +160,20 @@ def send_code(request):
                 request.session[email] = verify_code
                 # 发送验证码
                 try:
+                    subject = '[lyangly]'
+                    recipient_list = [email]
+                    if forwhat == 'reset_pass':
+                        message = '''<blockquote>您已选择重置本站帐号的密码，
+                                    如非本人操作则无需关注本条消息。重置验证码：
+                                    %s </blockquote>''' % verify_code
+                    else:
+                        message = '''<blockquote>尊敬的用户你好，您已在本站绑定该邮箱，
+                                    如非本人操作的无需理会本信息。验证码为：
+                                    %s </blockquote>''' % verify_code
                     send_mail(
-                        '[lyangly]',
-                        '尊敬的用户你好，你已在本站绑定邮箱。您的验证码是' + verify_code,
-                        'killer@lyangly.onmicrosoft.com', [email],
-                        fail_silently=False)
+                        subject=subject,
+                        message=message,
+                        recipient_list=recipient_list)
                 except SMTPException:
                     data['status'] = 'ERROR'
                     data['message'] = 'Send mail error'
@@ -215,7 +225,7 @@ def reset_password(request):
             user = User.objects.get(email=email)
             user.set_password(new_password)
             user.save()
-            return redirect(reverse('index'))
+            return redirect(reverse('login'))
     else:
         form = ResetPasswordForm()
     context = {

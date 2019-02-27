@@ -25,6 +25,7 @@
                 success: (data) => {
                     console.log(data);
                     if(data['status'] == 'SUCCESS'){
+                        $('#tips').text('验证码发送成功');
                         $(this).addClass('disabled');
                         $(this).attr('disabled', true);
                         var timeout = 60;
@@ -40,7 +41,7 @@
                             console.log(timeout + ' ');
                         }, 1000);
                     }else{
-                        $('#tips').text('*' + data['message']);
+                        $('#tips').text('*验证码发送失败');
                     }
                 },
                 error: function (xhr) {
