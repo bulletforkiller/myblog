@@ -12,7 +12,7 @@ class Comment(models.Model):
     content_object = GenericForeignKey('content_type', 'object_id')
     comment = models.CharField(max_length=1000)
     comment_time = models.DateTimeField(default=timezone.now)
-    user = models.ForeignKey(
+    author = models.ForeignKey(
         User, related_name='comment', on_delete=models.CASCADE)
     # 多级评论实现
     parent = models.ForeignKey(

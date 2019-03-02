@@ -39,11 +39,10 @@ class CommentForm(forms.Form):
         content_type = self.cleaned_data['content_type']
         object_id = self.cleaned_data['object_id']
         try:
-            model_class = ContentType.objects.get(
-                model=content_type).model_class()
-            content_object = model_class.objects.get(pk=object_id)
+            content_object = ContentType.objects.get(
+                model=content_type).model_class().objects.get(pk=object_id)
         except ObjectDoesNotExist:
-            raise forms.ValidationError('不存在的评论对象')
+            raise forms.ValidationError('被评论的对象不存在')
         else:
             self.cleaned_data['content_object'] = content_object
         finally:
@@ -51,14 +50,11 @@ class CommentForm(forms.Form):
 
     def clean_reply_to_id(self):
         reply_to_id = self.cleaned_data['reply_to_id']
-        if reply_to_id < 0:
-            raise forms.ValidationError('被回复对象不存在')
-        elif reply_to_id == 0:
+        if not reply_to_id:
             self.cleaned_data['parent'] = None
+        elif reply_to_id < 0 or not Comment.objects.filter(
+                pk=reply_to_id).exists():
+            raise forms.ValidationError('被评论的对象不存在')
         else:
-            if Comment.objects.filter(pk=reply_to_id):
-                self.cleaned_data['parent'] = Comment.objects.get(
-                    pk=reply_to_id)
-            else:
-                raise forms.ValidationError('被回复的对象不存在')
+            self.cleaned_data['parent'] = Comment.objects.get(pk=reply_to_id)
         return reply_to_id
