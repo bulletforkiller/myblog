@@ -1,5 +1,6 @@
 {% extends 'blog_base.html' %}
 
+{% load cache %}
 {% load static %}
 {% load comment_extras %}
 {% load reading_statics_extras %}
@@ -27,7 +28,9 @@
                 <li>阅读:({% get_read_num blog %})</li>
                 <li>评论: {% get_comments_count blog %}</li>
             </ul>
-            <div class="blog-content">{{blog.content|safe}}</div>
+            {% cache 43200 blog_content blog.pk %}
+                <div class="blog-content">{{blog.content|safe}}</div>
+            {% endcache %}
             {% url 'likechange' as url %}
             <div class="like-area" onclick="javascript:like_it(this, '{% get_content_type blog %}', {{blog.pk}}, '{{url}}')">
                 <i class="iconfont icon-xihuan1 {% get_likes_states blog %}"></i>

@@ -72,9 +72,6 @@ def home(request):
         get_month_popular,
         expire_time=3600,
         content_type=blog_content)
-    # yesterday_populars = get_yesterday_popular(content_type=blog_content)
-    # week_populars = get_week_popular(content_type=blog_content)
-    # month_populars = get_month_popular(content_type=blog_content)
     context = {
         'times_list': times_list,
         'views_list': views_list,

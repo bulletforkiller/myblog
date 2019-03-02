@@ -1,3 +1,4 @@
+{% load cache %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="zh-cn">
@@ -47,37 +48,40 @@
         </div>
     </nav> 
 
-    <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="login_modal">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">用户登陆</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="" method="POST" class="form-group" id="login-form">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        {% for form_item in login_modal_form %}
+    {% cache 86400 modal_login %}
+            <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="login_modal">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">用户登陆</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="" method="POST" class="form-group" id="login-form">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            {% for form_item in login_modal_form %}
+                                <div class="form-group">
+                                    <label for="{{form_item.id_for_label}}">{{form_item.label_tag}}</label>
+                                    {{form_item}}
+                                    <small class="form-text text-warning">{{form_item.errors.as_text}}</small>
+                                </div>
+                            {% endfor %}
                             <div class="form-group">
-                                <label for="{{form_item.id_for_label}}">{{form_item.label_tag}}</label>
-                                {{form_item}}
-                                <small class="form-text text-warning">{{form_item.errors.as_text}}</small>
+                                <small class="form-text text-warning float-left" id="modal-errors"></small>
                             </div>
-                        {% endfor %}
-                        <div class="form-group">
-                            <small class="form-text text-warning float-left" id="modal-errors"></small>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
-                        <button type="submit" class="btn btn-primary">登陆</button>
-                    </div>
-                </form>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                            <button type="submit" class="btn btn-primary">登陆</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
-    </div>
+        </div>    
+    {% endcache %}
+
 
     {% block content %}{% endblock content %}
     <!-- jQuery & bootstrap4 & Popper -->
