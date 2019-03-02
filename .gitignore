@@ -124,3 +124,4 @@ uwsgi.sock
 
 # for redis
 dump.rdb
+access.log
