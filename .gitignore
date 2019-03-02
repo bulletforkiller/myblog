@@ -121,3 +121,6 @@ data.json
 uwsgi.log
 uwsgi.pid
 uwsgi.sock
+
+# for redis
+dump.rdb
