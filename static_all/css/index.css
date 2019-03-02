@@ -1,0 +1,22 @@
+h3.home-content{
+    font-size: 222%;
+    text-align: center;
+    margin-top: 4em;
+    margin-bottom: 2em;
+}
+
+div#container{
+    margin: 0 auto;
+    min-width: 20em;
+    max-width: 50em;
+    height: 20em;
+}
+
+div.popular-list{
+    text-align: center;
+    margin-top: 2em;
+}
+
+div.popular-list li{
+    list-style-type: none;
+}
