@@ -106,11 +106,11 @@ dj_env/
 .mypy_cache/
 
 # my blog
-media/
+media/upload/*
 000*.py
 wsgi.py
 data.json
-static_all/
+static_all/*
 myblog.sh
 
 # vscode
