@@ -1,3 +1,4 @@
+import os
 from .base_settings import *
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -46,3 +47,36 @@ EMAIL_HOST_USER = os.environ.get('SEND_EMAIL_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('SEND_MAIL_PASS')
 EMAIL_PORT = os.environ.get('SEND_MAIL_PORT')
 EMAIL_USE_TLS = True
+
+# Admin email
+ADMINS = (('admin', 'lyangly@live.com'), )
+
+# Logging module
+LOGGIN = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/myblog_debug.log',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        }
+    }
+}
