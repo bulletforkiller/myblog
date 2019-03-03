@@ -28,7 +28,7 @@
                 <li>阅读:({% get_read_num blog %})</li>
                 <li>评论: {% get_comments_count blog %}</li>
             </ul>
-            {% cache 43200 blog_content blog.pk %}
+            {% cache 172800 blog_content blog.pk %}
                 <div class="blog-content">{{blog.content|safe}}</div>
             {% endcache %}
             {% url 'likechange' as url %}

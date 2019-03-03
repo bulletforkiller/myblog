@@ -9,7 +9,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from mysite.utils import send_mail
-from .forms import LoginForm, RegisterForm, ChangeNickForm, BindMailForm, ChangePasswordForm, ResetPasswordForm
+from .forms import LoginForm, RegisterForm, ChangeNickForm
+from .forms import BindMailForm, ChangePasswordForm, ResetPasswordForm
 from .models import Profile
 
 

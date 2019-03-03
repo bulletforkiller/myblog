@@ -1,5 +1,7 @@
 from django.db import models
+from django.core.cache import cache
 from django.contrib.auth.models import User
+from django.core.cache.utils import make_template_fragment_key
 from django.contrib.contenttypes.fields import GenericRelation
 from ckeditor_uploader.fields import RichTextUploadingField
 from reading_statistics.models import ReadDetail
@@ -27,3 +29,8 @@ class Blog(models.Model):
 
     class Meta:
         ordering = ['-create_time']
+
+    # Delete cache when update blog.
+    def save(self, *args, **kwargs):
+        cache.delete(make_template_fragment_key('blog_content', [self.pk]))
+        super().save(*args, **kwargs)

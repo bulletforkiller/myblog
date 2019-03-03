@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.paginator import Paginator
+from django.views.decorators.cache import cache_page
 from django.shortcuts import get_object_or_404, render
 from .models import Blog, BlogType
 from reading_statistics.utils import read_statistics_once
@@ -40,6 +41,7 @@ def get_blog_list_common(request, blogs):
     }
 
 
+@cache_page(60 * 5)
 def blog_list(request):
     blogs = Blog.objects.all()  # 使用 get_list_or_404 没有博客时返回404,无法显示
     return render(request, 'myblog/blog_list.html',
@@ -62,6 +64,7 @@ def blog_detail(request, blog_id):
     return response
 
 
+@cache_page(60 * 5)
 def blogs_with_type(request, blogs_with_type):
     blog_type = get_object_or_404(BlogType, pk=blogs_with_type)
     blogs = Blog.objects.filter(blog_type__pk=blog_type.pk)
@@ -72,6 +75,7 @@ def blogs_with_type(request, blogs_with_type):
     return render(request, 'myblog/blog_with_type.html', context)
 
 
+@cache_page(60 * 5)
 def blogs_by_date(request, year, month):
     blogs = Blog.objects.filter(
         create_time__year=year, create_time__month=month)
