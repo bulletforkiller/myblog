@@ -55,6 +55,7 @@ coverage.xml
 *.log
 local_settings.py
 db.sqlite3
+develop.py
 
 # Flask stuff:
 instance/
@@ -108,8 +109,9 @@ dj_env/
 media/
 000*.py
 wsgi.py
-settings.py
 data.json
+static_all/
+myblog.sh
 
 # vscode
 .vscode/
