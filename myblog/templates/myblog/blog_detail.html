@@ -101,7 +101,7 @@
                         {% for comment in comments_list %}
                             <li class="list-group-item">
                                 <small>
-                                    <span>{{comment.user.get_nickname_or_username}}</span>
+                                    <span>{{comment.author.get_nickname_or_username}}</span>
                                     <span>{{comment.comment_time|date:"Y-m-d G:i:s"}}</span>
                                 </small>
                                 <br>
@@ -124,7 +124,7 @@
                                                 <span>{{reply.user}}</span>
                                                 <span>{{reply.comment_time|date:"Y-m-d G:i:s"}}</span> 
                                                 <span>回复</span>
-                                                <span>{{reply.reply_to.username}}</span>
+                                                <span>{{reply.reply_to.get_nickname_or_username}}</span>
                                             </small>
                                             <div id="comment_{{reply.pk}}">
                                                 {{reply.comment|safe}}
