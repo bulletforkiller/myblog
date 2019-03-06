@@ -16,13 +16,18 @@ class BlogType(models.Model):
 
 
 class Blog(models.Model):
-    title = models.CharField(max_length=50)
-    blog_type = models.ForeignKey(BlogType, on_delete=models.CASCADE)
-    content = RichTextUploadingField()
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    create_time = models.DateTimeField(auto_now_add=True)
-    last_modified_time = models.DateTimeField(auto_now=True)
+    title = models.CharField(max_length=50, verbose_name='标题')
+    blog_type = models.ForeignKey(
+        BlogType, on_delete=models.CASCADE, verbose_name='博客类型')
+    content = RichTextUploadingField(verbose_name='博客内容')
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name='作者')
+    create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    last_modified_time = models.DateTimeField(
+        auto_now=True, verbose_name='上次修改时间')
     read_details = GenericRelation(ReadDetail)
+    # Show or not
+    is_visable = models.BooleanField(default=True, verbose_name='是否可见')
 
     def __str__(self):
         return '<Blog: %s>' % self.title
