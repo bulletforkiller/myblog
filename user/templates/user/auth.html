@@ -1,5 +1,6 @@
 {% extends 'common_form.html' %}
 
 {% block extra_btn %}
-    <a href="{% url 'reset_password' %}" class="mr-auto">忘记密码</a>
+    <a class="login_form" href="{% url 'register' %}">注册</a>
+    <a class="login_form" href="{% url 'reset_password' %}" class="mr-auto">忘记密码</a>
 {% endblock extra_btn %}

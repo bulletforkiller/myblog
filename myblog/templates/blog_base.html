@@ -43,7 +43,6 @@
                         </div>
                     </div>
                 {% endif %}
-                
             </ul>
         </div>
     </nav> 
@@ -73,8 +72,10 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                            <a class="mr-auto login_form" href="{% url 'register' %}">注册</a>
+                            <a class="mr-auto login_form" href="{% url 'reset_password' %}" class="mr-auto">忘记密码</a>
                             <button type="submit" class="btn btn-primary">登陆</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
                         </div>
                     </form>
                 </div>

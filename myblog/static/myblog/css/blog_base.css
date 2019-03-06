@@ -6,3 +6,9 @@
 body{
     margin-top: 70px!important;
 }
+
+/* For my login form */
+.login_form{
+    margin-top: 0.8rem;
+    margin-right: 1rem;
+}
