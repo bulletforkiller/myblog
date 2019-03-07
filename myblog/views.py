@@ -43,13 +43,14 @@ def get_blog_list_common(request, blogs):
 
 @cache_page(60 * 5)
 def blog_list(request):
-    blogs = Blog.objects.all()  # 使用 get_list_or_404 没有博客时返回404,无法显示
+    blogs = Blog.objects.filter(
+        is_visable=True)  # 使用 get_list_or_404 没有博客时返回404,无法显示
     return render(request, 'myblog/blog_list.html',
                   get_blog_list_common(request, blogs))
 
 
 def blog_detail(request, blog_id):
-    blog = get_object_or_404(Blog, pk=blog_id)
+    blog = get_object_or_404(Blog, pk=blog_id, is_visable=True)
     cookie_key = read_statistics_once(request, blog)
     previos_blog = Blog.objects.filter(create_time__gt=blog.create_time).last()
     next_blog = Blog.objects.filter(create_time__lt=blog.create_time).first()
