@@ -6,9 +6,10 @@ from django.utils import timezone
 
 # Create your models here.
 class ReadNum(models.Model):
-    read_nums = models.IntegerField(default=0)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    read_nums = models.IntegerField(default=0, verbose_name='阅读数')
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE, editable=False)
+    object_id = models.PositiveIntegerField(editable=False)
     content_object = GenericForeignKey('content_type', 'object_id')
 
     def __str__(self):
@@ -16,10 +17,12 @@ class ReadNum(models.Model):
 
 
 class ReadDetail(models.Model):
-    read_nums = models.IntegerField(default=0)
-    date = models.DateField(default=timezone.now)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    read_nums = models.IntegerField(default=0, verbose_name='阅读统计')
+    date = models.DateField(
+        default=timezone.now, editable=False, verbose_name='时间')
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE, editable=False)
+    object_id = models.PositiveIntegerField(editable=False)
     content_object = GenericForeignKey('content_type', 'object_id')
 
     def __str__(self):
