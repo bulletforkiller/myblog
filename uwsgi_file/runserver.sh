@@ -11,4 +11,4 @@ source /home/myblog/dj_env/bin/activate
 uwsgi --ini /home/myblog/uwsgi_file/uwsgi.ini
 
 # start nginx
-sudo systemctl start nginx.service
+nginx

@@ -118,7 +118,7 @@ STATICFILES_DIRS = [
 ]
 
 # Media
-MEDIA_URL = '/meida/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # ckeditor uploader settings
