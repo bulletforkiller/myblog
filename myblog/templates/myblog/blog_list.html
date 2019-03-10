@@ -31,7 +31,7 @@
                                         <i class="iconfont icon-clock">{{blog.create_time|date:"Y-m-d"}}</i>
                                         <i class="iconfont icon-pinglun">{% get_comments_count blog %}</i>
                                     </div>
-                                    <p>{{blog.content|striptags|truncatechars:60}}</p>
+                                    <p>{{blog.content|striptags|truncatechars:60|safe}}</p>
                                 </li>
                             {% empty %}
                                 <p>暂无博客，敬请期待</p>

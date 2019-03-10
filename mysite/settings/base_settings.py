@@ -143,14 +143,14 @@ CKEDITOR_CONFIGS = {
         'height':
         '180',
         'tabSpaces':
-        4,
+        2,
         'removePlugins':
         'elementspath',
         'resize_enabled':
         False,
     },
     'default': {
-        'tabSpaces': 4,
+        'tabSpaces': 2,
     }
 }
 

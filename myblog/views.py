@@ -52,8 +52,10 @@ def blog_list(request):
 def blog_detail(request, blog_id):
     blog = get_object_or_404(Blog, pk=blog_id, is_visable=True)
     cookie_key = read_statistics_once(request, blog)
-    previos_blog = Blog.objects.filter(create_time__gt=blog.create_time).last()
-    next_blog = Blog.objects.filter(create_time__lt=blog.create_time).first()
+    previos_blog = Blog.objects.filter(
+        create_time__gt=blog.create_time, is_visable=True).last()
+    next_blog = Blog.objects.filter(
+        create_time__lt=blog.create_time, is_visable=True).first()
     context = {
         'user': request.user,
         'blog': blog,
