@@ -4,7 +4,7 @@
 source /home/myblog/dj_env/bin/activate
 
 # stop nginx
-sudo systemctl stop nginx.service
+nginx -s stop
 
 # stop uwsgi
 uwsgi --stop /home/myblog/uwsgi_file/uwsgi.pid
