@@ -6,8 +6,9 @@ from django.contrib.auth.models import User
 # 动态绑定使用的方法，供多个类使用
 def clean_verify_code(self):
     email = self.cleaned_data['email']
-    verify_code = self.cleaned_data['verify_code'].strip()
-    raw_code = self.request.session.get(email, '')
+    # 不区分大小写的验证码
+    verify_code = self.cleaned_data['verify_code'].strip().lower()
+    raw_code = self.request.session.get(email, '').lower()
     if not verify_code:
         raise forms.ValidationError('验证码不能为空')
     elif raw_code != verify_code:
