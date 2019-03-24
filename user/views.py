@@ -1,4 +1,3 @@
-import time
 from string import hexdigits
 from smtplib import SMTPException
 from random import sample, randint
@@ -12,6 +11,7 @@ from mysite.utils import send_mail
 from .forms import LoginForm, RegisterForm, ChangeNickForm
 from .forms import BindMailForm, ChangePasswordForm, ResetPasswordForm
 from .models import Profile
+from mysite.utils import interval_time
 
 
 def modal_auth(request):
@@ -138,22 +138,21 @@ def bind_email(request):
     return render(request, 'user/send_code.html', context)
 
 
-# 该方法只处理 ajax 请求
+# This function only handle ajax request
 def send_code(request):
     if request.is_ajax():
         data = {}
         if request.method == 'POST':
             email = request.POST.get('email')
-            # 后端限制发送邮件的频率
-            last_sent = request.session.get('%s_time' % email, 0)
             forwhat = request.POST.get('forwhat', '')
-            if int(time.time()) - last_sent < 60:
+            # Limit send mail frequency
+            if interval_time('{}_send'.format(email), 60000):
                 data['status'] = 'ERROR'
                 data['message'] = 'Send mail too frequency'
             elif forwhat != 'reset_pass' and User.objects.filter(
                     email=email).exists():
                 data['status'] = 'ERROR'
-                data['message'] = '邮箱已被绑定'
+                data['message'] = 'Email was bind already.'
             else:
                 # 生成验证码
                 verify_code = ''.join(sample(hexdigits, randint(6, 10)))
@@ -180,13 +179,12 @@ def send_code(request):
                     data['message'] = 'Send mail error'
                 else:
                     data['status'] = 'SUCCESS'
-                # 存储发送时间
-                request.session['%s_time' % email] = int(time.time())
             return JsonResponse(data)
         else:
-            return render(request, 'error.html', {'message': '非法的提交'})
+            return render(request, 'error.html',
+                          {'message': 'Invalid request'})
     else:
-        return render(request, 'error.html', {'message': '非法的提交'})
+        return render(request, 'error.html', {'message': 'Invalid request'})
 
 
 @login_required(redirect_field_name='from', login_url='/user/login/')
