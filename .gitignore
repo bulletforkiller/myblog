@@ -125,5 +125,10 @@ uwsgi.pid
 uwsgi.sock
 
 # for redis
-dump.rdb
-access.log
+docker/redis/data
+
+# for postgres
+docker/postgres/data
+
+# for nginx
+mysite.conf
